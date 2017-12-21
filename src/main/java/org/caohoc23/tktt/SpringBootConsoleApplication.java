@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.util.StringUtils;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,8 @@ public class SpringBootConsoleApplication implements CommandLineRunner {
         try {
             Options options = new Options();
             options.addOption("p", true, "Document Path");
-            options.addOption("s", true, "Document Path");
+            options.addOption("s", true, "Search keyword");
+            options.addOption("k", true, "TOP K");
             CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
 
@@ -44,10 +47,24 @@ public class SpringBootConsoleApplication implements CommandLineRunner {
                 System.out.println(cmd.getOptionValue("p"));
             } else if (cmd.hasOption("s")) {
                 String keyword = cmd.getOptionValue("s");
-                Map<String, Double> keywordW = search.search(keyword);
+                int k = 10;
+                if (cmd.hasOption("k")) {
+                    String topK = cmd.getOptionValue("k");
+                    k = Integer.valueOf(topK);
+                }
 
+                Map<String, Double> keywordW = search.search(keyword);
+                int count = 0;
+                System.out.println("+----+---------------+---------------+");
+                System.out.println("| No |  Document     |   Score       |");
+                System.out.println("+----+---------------+---------------+");
                 for (Map.Entry entry: keywordW.entrySet()) {
-                    System.out.println(String.format("%s:\t%f", entry.getKey(), entry.getValue()));
+                    System.out.println(String.format("| %2d | %-14s|%14f |", count + 1, entry.getKey(), entry.getValue()));
+                    System.out.println("+----+---------------+---------------+");
+                    count++;
+                    if (count == k) {
+                        break;
+                    }
                 }
 
             } else {
@@ -60,17 +77,14 @@ public class SpringBootConsoleApplication implements CommandLineRunner {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
-//        ProgressBar pb = new ProgressBar("Indexing", 100);
-//        pb.start();
-//        for (int i = 0; i < 100; i++) {
-//            pb.step();
-//            Thread.sleep(300);
-//        }
-//        pb.stop();
-
         exit(0);
+    }
+
+    private String getFileString(String file) throws IOException {
+        FileReader f = new FileReader(file);
+        BufferedReader reader = new BufferedReader(f);
+
+        return reader.readLine();
     }
 
 }

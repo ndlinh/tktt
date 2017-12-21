@@ -50,7 +50,7 @@ public class IndexBuilder {
 
         cleanUp();
 
-        ProgressBar pb = new ProgressBar("Indexing", files.length + 1);
+        ProgressBar pb = new ProgressBar("Indexing", files.length);
         pb.start();
         for (File fs: files) {
             pb.step();
@@ -66,13 +66,13 @@ public class IndexBuilder {
         createDictionary();
 
         pb2.step();
-        calculateTfNorm();
+        calculateLogFreqWeight();
 
         pb2.step();
         createDocsData();
 
         pb2.step();
-        updateDocTfNorm2();
+        updateDocWeightNorm2();
         pb2.stop();
 
     }
@@ -136,6 +136,18 @@ public class IndexBuilder {
         jdbcTemplate.update("TRUNCATE TABLE docs");
     }
 
+    /**
+     * Tính trọng số Log-frequency weighting
+     * Slide 16
+     */
+    private void calculateLogFreqWeight() {
+        String sql = "UPDATE doc_tf SET w_td = IF (tf > 0, 1 + LOG10(`tf`), 0) ";
+        jdbcTemplate.update(sql);
+    }
+
+    /**
+     * Tính Term - Document Frequency (df)
+     */
     private void createDictionary() {
         String sql = "SELECT term, count(doc_id) as df FROM doc_tf GROUP BY term";
         List<Dictionary> list = jdbcTemplate.query(sql, new RowMapper<Dictionary>() {
@@ -155,18 +167,17 @@ public class IndexBuilder {
         }
     }
 
-    private void calculateTfNorm() {
-        String sql = "UPDATE doc_tf SET tf_norm = 1 + LOG10(`tf`)";
-        jdbcTemplate.update(sql);
-    }
-
+    /**
+     * Tính Doc Length và lưu dữ liệu document.
+     * Slide 33
+     */
     private void createDocsData() {
-        String sql = "INSERT INTO docs (doc_id, doc_norm) SELECT doc_id, SQRT(SUM(POWER(tf, 2))) as tf FROM doc_tf GROUP BY doc_id";
+        String sql = "INSERT INTO docs (doc_id, doc_length) SELECT doc_id, SQRT(SUM(POWER(tf, 2))) as tf FROM doc_tf GROUP BY doc_id";
         jdbcTemplate.update(sql);
     }
 
-    private void updateDocTfNorm2() {
-        String sql = "UPDATE doc_tf a SET a.tf_norm2 = tf_norm / (SELECT doc_norm FROM docs b WHERE a.doc_id = b.doc_id)";
+    private void updateDocWeightNorm2() {
+        String sql = "UPDATE doc_tf a SET a.w_td_norm = w_td / (SELECT doc_length FROM docs b WHERE a.doc_id = b.doc_id)";
         jdbcTemplate.update(sql);
     }
 

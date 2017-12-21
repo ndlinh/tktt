@@ -36,15 +36,18 @@ public class Search {
         final String[] sentences = sentenceDetector.detectSentences(input);
 
         List<String> ret = new ArrayList<>();
+        System.out.print("Tokens: ");
         for (String s: sentences) {
             tokenizer.tokenize(new StringReader(s));
             Iterator<TaggedWord> it = tokenizer.getResult().iterator();
             while (it.hasNext()) {
                 TaggedWord t = it.next();
                 ret.add(t.getText());
+
+                System.out.print(String.format("[ %s ]", t.getText()));
             }
         }
-
+        System.out.println("");
         return ret;
     }
 
@@ -52,8 +55,6 @@ public class Search {
         List<String> keywords = token(keyword);
         HashMap<String, Double> keywordWeights = new HashMap<>();
         for (String s: keywords) {
-            System.out.println(s);
-
             if (keywordWeights.containsKey(s)) {
                 Double w = keywordWeights.get(s);
                 keywordWeights.put(s, w + 1);
@@ -73,7 +74,9 @@ public class Search {
     }
 
     public Map<String, Double> search(String keyword) throws IOException {
+        //Tính idf của keywords
         HashMap<String, Double> keywordW = calculateKeywordW(keyword);
+
         String sql = "SELECT * FROM doc_tf WHERE term IN (" + makeQueryString(keywordW.keySet()) + ") ORDER BY doc_id";
         HashMap<String, Double> result = new HashMap<>();
 
@@ -81,7 +84,7 @@ public class Search {
             @Override
             public void processRow(ResultSet resultSet) throws SQLException {
                 String docId = resultSet.getString("doc_id");
-                Double w = resultSet.getDouble("tf_norm2");
+                Double w = resultSet.getDouble("w_td_norm");
                 String dbTerm = resultSet.getString("term");
                 if (!keywordW.keySet().contains(dbTerm)) {
                     lastDocId = docId;

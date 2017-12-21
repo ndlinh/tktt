@@ -10,6 +10,12 @@
 - Download maven: https://maven.apache.org/download.cgi
 - Giải nén và đặt biến môi trường PATH chỉ vào thư mục `bin` của maven
 
+##2. Build thư viện VNTokenizer
+
+    git clone https://github.com/ndlinh/vn-nlp-libraries.git
+    cd vn-nlp-libraries/nlp-parent
+    mvn install
+
 ##2. Tải source code:
 
 Tải source code tại https://github.com/ndlinh/tktt
