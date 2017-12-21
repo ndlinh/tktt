@@ -8,7 +8,9 @@ import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.System.exit;
 
@@ -42,11 +44,12 @@ public class SpringBootConsoleApplication implements CommandLineRunner {
                 System.out.println(cmd.getOptionValue("p"));
             } else if (cmd.hasOption("s")) {
                 String keyword = cmd.getOptionValue("s");
-                List<String> tokens = search.token(keyword);
+                Map<String, Double> keywordW = search.search(keyword);
 
-                for (String s: tokens) {
-                    System.out.println(s);
+                for (Map.Entry entry: keywordW.entrySet()) {
+                    System.out.println(String.format("%s:\t%f", entry.getKey(), entry.getValue()));
                 }
+
             } else {
 
                 HelpFormatter formatter = new HelpFormatter();
