@@ -27,10 +27,20 @@
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- JPA Data (We are going to use Repositories, Entities, Hibernate, etc...) -->
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
+
+        <!-- Use MySQL Connector-J -->
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>commons-cli</groupId>
@@ -69,6 +79,12 @@
             <groupId>vn.hus</groupId>
             <artifactId>nlp-tokenizer</artifactId>
             <version>4.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

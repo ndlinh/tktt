@@ -2,10 +2,13 @@ package org.caohoc23.tktt;
 
 import org.apache.commons.cli.*;
 import org.caohoc23.tktt.services.IndexBuilder;
+import org.caohoc23.tktt.services.Search;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+
+import java.util.List;
 
 import static java.lang.System.exit;
 
@@ -13,6 +16,9 @@ public class SpringBootConsoleApplication implements CommandLineRunner {
 
     @Autowired
     private IndexBuilder indexBuilder;
+
+    @Autowired
+    private Search search;
 
     public static void main(String[] args) throws Exception {
         SpringApplication app = new SpringApplication(AppConfig.class);
@@ -26,6 +32,7 @@ public class SpringBootConsoleApplication implements CommandLineRunner {
         try {
             Options options = new Options();
             options.addOption("p", true, "Document Path");
+            options.addOption("s", true, "Document Path");
             CommandLineParser parser = new DefaultParser();
             CommandLine cmd = parser.parse(options, args);
 
@@ -33,8 +40,15 @@ public class SpringBootConsoleApplication implements CommandLineRunner {
                 String path = cmd.getOptionValue("p");
                 indexBuilder.run(path);
                 System.out.println(cmd.getOptionValue("p"));
+            } else if (cmd.hasOption("s")) {
+                String keyword = cmd.getOptionValue("s");
+                List<String> tokens = search.token(keyword);
 
+                for (String s: tokens) {
+                    System.out.println(s);
+                }
             } else {
+
                 HelpFormatter formatter = new HelpFormatter();
                 formatter.printHelp("java -jar target/tktt-1.0-SNAPSHOT.jar", options);
             }
