@@ -67,7 +67,7 @@ public class Search {
         for (String s: keywordWeights.keySet()) {
             Double w = keywordWeights.get(s);
             Double idf = getIdf(s, totalDocs);
-            keywordWeights.put(s, idf * (Math.log10(w) + 1));
+            keywordWeights.put(s, (1 + Math.log(w)) * idf);
         }
 
         return keywordWeights;
